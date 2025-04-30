@@ -76,3 +76,79 @@ function shuffle(array) {
     }
     return array;
 }
+function createBoard() {
+    gameBoard.innerHTML = '';
+    let shuffledCards = shuffle(cardsArray.slice());
+    shuffledCards.forEach((emoji, index) => {
+        const card = document.createElement('div');
+        card.classList.add('card', 'bg-dark', 'text-white', 'shadow', 'rounded');
+        card.style.width = '100px';
+        card.style.height = '100px';
+        card.dataset.emoji = emoji;
+        card.dataset.index = index;
+        card.style.cursor = 'pointer';
+        card.style.perspective = '600px';
+        card.style.position = 'relative';
+
+        const cardInner = document.createElement('div');
+        cardInner.classList.add('card-inner');
+        cardInner.style.width = '100%';
+        cardInner.style.height = '100%';
+        cardInner.style.transition = 'transform 0.5s';
+        cardInner.style.transformStyle = 'preserve-3d';
+        cardInner.style.position = 'relative';
+
+        const cardFront = document.createElement('div');
+        cardFront.classList.add('card-front', 'd-flex', 'align-items-center', 'justify-content-center');
+        cardFront.style.backgroundColor = '#34495e';
+        cardFront.style.fontSize = '48px';
+        cardFront.style.width = '100%';
+        cardFront.style.height = '100%';
+        cardFront.style.position = 'absolute';
+        cardFront.style.backfaceVisibility = 'hidden';
+        cardFront.style.borderRadius = '0.5rem';
+        cardFront.textContent = '?';
+
+        const cardBack = document.createElement('div');
+        cardBack.classList.add('card-back', 'd-flex', 'align-items-center', 'justify-content-center');
+        cardBack.style.backgroundColor = '#1abc9c';
+        cardBack.style.fontSize = '48px';
+        cardBack.style.width = '100%';
+        cardBack.style.height = '100%';
+        cardBack.style.position = 'absolute';
+        cardBack.style.backfaceVisibility = 'hidden';
+        cardBack.style.borderRadius = '0.5rem';
+        cardBack.style.transform = 'rotateY(180deg)';
+        cardBack.textContent = emoji;
+
+        cardInner.appendChild(cardFront);
+        cardInner.appendChild(cardBack);
+        card.appendChild(cardInner);
+
+        card.addEventListener('click', flipCard);
+
+        gameBoard.appendChild(card);
+    });
+    matchedCards = 0;
+    message.textContent = '';
+    resetStats();
+}
+
+function flipCard() {
+    if (lockBoard) return;
+    if (this.classList.contains('flipped')) return;
+
+    if (!timerStarted) {
+        startTimer();
+        timerStarted = true;
+    }
+
+    this.classList.add('flipped');
+    flippedCards.push(this);
+
+    if (flippedCards.length === 2) {
+        movesCount++;
+        updateMoves();
+        checkForMatch();
+    }
+}
